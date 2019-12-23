@@ -1,6 +1,8 @@
 package no.charlie;
 
 import io.dropwizard.Application;
+import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
+import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.db.ManagedDataSource;
 import io.dropwizard.jdbi3.JdbiFactory;
@@ -18,6 +20,8 @@ import no.charlie.client.SlackService;
 import no.charlie.db.DeltakerDAO;
 import no.charlie.db.HendelseDAO;
 
+import java.util.Arrays;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.jdbi.v3.core.Jdbi;
@@ -29,7 +33,7 @@ public class PaameldingApplication extends Application<PaameldingConfiguration> 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaameldingApplication.class);
 
     public static void main(final String[] args) throws Exception {
-        new PaameldingApplication().run(args);
+        new PaameldingApplication().run("server", "config.yml");
     }
 
     @Override
@@ -39,6 +43,11 @@ public class PaameldingApplication extends Application<PaameldingConfiguration> 
 
     @Override
     public void initialize(final Bootstrap<PaameldingConfiguration> bootstrap) {
+        bootstrap.setConfigurationSourceProvider(
+                new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(),
+                        new EnvironmentVariableSubstitutor(false)
+                )
+        );
 
     }
 

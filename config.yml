@@ -1,0 +1,26 @@
+# Database settings.
+database:
+  driverClass: org.postgresql.Driver
+  user: ${DW_DB_USER}
+  password: ${DW_DB_PASSWORD}
+  url: jdbc:postgresql://paamelding-db.cqcwwy2dkcpr.us-west-2.rds.amazonaws.com:5432/paamelding?sslmode=require
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
+
+
+captchaSecret: ${DW_CAPTCHA_SECRET}
+magicHeader: ${DW_MAGIC_HEADER}
+fotballSlack: ${DW_SLACK_FOTBALL}
+innebandySlack: ${DW_SLACK_INNEBANDY}
+volleyballSlack: ${DW_SLACK_VOLLEYBALL}
+
+logging:
+  level: INFO
+  loggers:
+    no.charlie: DEBUG
+
