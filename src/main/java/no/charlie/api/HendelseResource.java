@@ -1,5 +1,6 @@
 package no.charlie.api;
 
+import io.swagger.annotations.Api;
 import no.charlie.domain.Deltaker;
 import no.charlie.domain.Hendelse;
 import no.charlie.domain.HendelseMedDeltakerinfo;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 @Path("/hendelse")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Api("Hendelse")
 public class HendelseResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HendelseResource.class);

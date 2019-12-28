@@ -1,5 +1,6 @@
 package no.charlie.api;
 
+import io.swagger.annotations.Api;
 import no.charlie.client.SlackService;
 import no.charlie.domain.HendelseMedDeltakerinfo;
 
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 @Path("/slack")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Api("Slack")
 public class SlackResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SlackResource.class);

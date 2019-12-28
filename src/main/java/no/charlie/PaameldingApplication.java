@@ -8,6 +8,8 @@ import io.dropwizard.db.ManagedDataSource;
 import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.federecio.dropwizard.swagger.SwaggerBundle;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import no.charlie.api.DeltakerService;
 import no.charlie.api.HendelseResource;
 import no.charlie.api.HendelseService;
@@ -48,6 +50,13 @@ public class PaameldingApplication extends Application<PaameldingConfiguration> 
                         new EnvironmentVariableSubstitutor(false)
                 )
         );
+
+        bootstrap.addBundle(new SwaggerBundle<PaameldingConfiguration>() {
+            @Override
+            protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(PaameldingConfiguration configuration) {
+                return configuration.getSwaggerBundleConfiguration();
+            }
+        });
 
     }
 

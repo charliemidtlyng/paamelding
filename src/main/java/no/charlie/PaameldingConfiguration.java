@@ -4,6 +4,7 @@ import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.flyway.FlywayFactory;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -20,6 +21,8 @@ public class PaameldingConfiguration extends Configuration {
     private String volleyballSlack;
     private String captchaSecret;
     private String magicHeader;
+
+    private SwaggerBundleConfiguration swaggerBundleConfiguration = new SwaggerBundleConfiguration();
 
     @JsonProperty("database")
     public DataSourceFactory getDataSourceFactory() {
@@ -58,5 +61,10 @@ public class PaameldingConfiguration extends Configuration {
 
     public String getMagicHeader() {
         return magicHeader;
+    }
+
+    public SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
+        swaggerBundleConfiguration.setResourcePackage("no.charlie");
+        return swaggerBundleConfiguration;
     }
 }
