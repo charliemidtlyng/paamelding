@@ -142,6 +142,7 @@
     </dependencies>
   </dependencyManagement>
   <properties>
+    <swagger.version>2.0.0-1</swagger.version>
     <postgresql.version>42.2.9</postgresql.version>
     <feign.version>10.7.0</feign.version>
     <mainClass>no.charlie.PaameldingApplication</mainClass>
