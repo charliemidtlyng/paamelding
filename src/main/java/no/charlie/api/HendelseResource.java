@@ -1,15 +1,19 @@
 package no.charlie.api;
 
 import io.swagger.annotations.Api;
-import no.charlie.domain.Deltaker;
-import no.charlie.domain.Hendelse;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import no.charlie.domain.DeltakerRequest;
 import no.charlie.domain.HendelseMedDeltakerinfo;
+import no.charlie.domain.HendelseRequest;
 import no.charlie.domain.Hendelsestype;
 
 import java.util.List;
 import java.util.Optional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -45,6 +49,8 @@ public class HendelseResource {
     @GET
     @Timed
     @Path("/{id}")
+    @ApiOperation("Hent ut informasjon om en enkelt hendelse")
+    @ApiResponses (@ApiResponse(code = 200, message = "En enkelt hendelse", response = HendelseMedDeltakerinfo.class))
     public Response finnHendelse(@PathParam("id") int id) {
         Optional<HendelseMedDeltakerinfo> optHendelse = hendelseService.finnHendelseMedDeltakerInfo(id);
         return optHendelse.map(hendelse -> Response.ok(hendelse).build())
@@ -54,17 +60,33 @@ public class HendelseResource {
     @GET
     @Timed
     @Path("/nye")
-    public Response finnNyeHendelse(@QueryParam("typer") List<Hendelsestype> hendelsestyper) {
+    @ApiOperation("Hent ut en liste over hendelser frem i tid")
+    @ApiResponses (@ApiResponse(code = 200, message = "Liste med hendelser", response = HendelseMedDeltakerinfo.class, responseContainer = "List"))
+    public Response finnNyeHendelser(@QueryParam("typer") List<Hendelsestype> hendelsestyper) {
         if (hendelsestyper.isEmpty()) {
             return Response.status(400).entity("Mangler hendelsestyper").build();
         }
         return Response.ok(hendelseService.finnNyeHendelser(hendelsestyper)).build();
     }
 
+    @GET
+    @Timed
+    @Path("/historiske")
+    @ApiOperation("Hent ut en liste over historiske hendelser")
+    @ApiResponses (@ApiResponse(code = 200, message = "Liste med hendelser", response = HendelseMedDeltakerinfo.class, responseContainer = "List"))
+    public Response finnHistoriskeHendelser(@QueryParam("typer") List<Hendelsestype> hendelsestyper) {
+        if (hendelsestyper.isEmpty()) {
+            return Response.status(400).entity("Mangler hendelsestyper").build();
+        }
+        return Response.ok(hendelseService.finnHistoriskeHendelser(hendelsestyper)).build();
+    }
+
     @POST
     @Timed
     @Path("/opprett")
-    public Response opprettHendelse(Hendelse hendelse) {
+    @ApiOperation("Opprett en ny hendelse")
+    @ApiResponses (@ApiResponse(code = 200, message = "Den opprettede hendelsen", response = HendelseMedDeltakerinfo.class))
+    public Response opprettHendelse(HendelseRequest hendelse) {
         validator.sjekkUgyldigeVerdierForHendelse(hendelse);
         try {
             HendelseMedDeltakerinfo opprettet = hendelseService.opprettHendelse(hendelse);
@@ -78,11 +100,13 @@ public class HendelseResource {
     @POST
     @Timed
     @Path("/meld-paa/{hendelseId}")
-    public Response meldPaaHendelse(@PathParam("hendelseId") int hendelseId, @Context HttpHeaders httpHeaders, Deltaker deltaker) {
+    @ApiOperation(value = "Melde deltaker på hendelse")
+    @ApiResponses (@ApiResponse(code = 200, message = "Den påmeldte hendelsen", response = HendelseMedDeltakerinfo.class))
+    public Response meldPaaHendelse(@PathParam("hendelseId") int hendelseId, @HeaderParam ("X-captcha-request") String captcha, @Context HttpHeaders httpHeaders, DeltakerRequest deltakerRequest) {
         validator.sjekkUgyldigeVerdierForPaamelding(hendelseService.finnHendelse(hendelseId).isPresent(), httpHeaders);
         try {
-            deltakerService.meldPaaHendelse(hendelseId, deltaker);
-            return Response.accepted().build();
+            deltakerService.meldPaaHendelse(hendelseId, deltakerRequest);
+            return Response.ok(hendelseService.finnHendelseMedDeltakerInfo(hendelseId).get()).build();
         } catch (Exception e) {
             LOGGER.error("Kunne ikke melde på hendelse", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -92,16 +116,26 @@ public class HendelseResource {
     @POST
     @Timed
     @Path("/meld-av/{hendelseId}/{deltakerId}")
+    @ApiOperation("Melde deltaker av hendelse")
+    @ApiResponses (@ApiResponse(code = 200, message = "Den avmeldte hendelsen", response = HendelseMedDeltakerinfo.class))
     public Response meldAvHendelse(@PathParam("hendelseId") int hendelseId, @PathParam("deltakerId") int deltakerId) {
         validator.sjekkUgyldigeVerdierForAvmelding(deltakerId, hendelseService.finnHendelse(hendelseId));
         try {
             deltakerService.meldAvHendelse(hendelseId, deltakerId);
-            return Response.accepted().build();
+            return Response.ok(hendelseService.finnHendelseMedDeltakerInfo(hendelseId).get()).build();
         } catch (Exception e) {
             LOGGER.error("Kunne ikke opprette hendelse", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+
+    @GET
+    @Path("/typer")
+    @ApiOperation("Hent ut en liste over gyldige hendelsestyper")
+    @ApiResponses (@ApiResponse(code = 200, message = "Tilgjengelige hendelsestyper", response = Hendelsestype.class, responseContainer = "List"))
+    public Response gyldigeHendelsestyper() {
+        return Response.ok(Hendelsestype.values()).build();
+    }
 
 }

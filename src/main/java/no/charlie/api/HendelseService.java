@@ -5,6 +5,7 @@ import no.charlie.db.HendelseDAO;
 import no.charlie.domain.Deltaker;
 import no.charlie.domain.Hendelse;
 import no.charlie.domain.HendelseMedDeltakerinfo;
+import no.charlie.domain.HendelseRequest;
 import no.charlie.domain.Hendelsestype;
 
 import java.time.LocalDateTime;
@@ -24,23 +25,15 @@ public class HendelseService {
         this.deltakerDAO = deltakerDAO;
     }
 
-
     public List<HendelseMedDeltakerinfo> finnNyeHendelser(List<Hendelsestype> hendelsestyper) {
         List<Hendelse> hendelser = hendelseDAO.finnHendelserEtter(hendelsestyper, LocalDateTime.now());
-        Map<Integer, Integer> antallMap = hendelser.isEmpty() ? new HashMap<>() : deltakerDAO.finnDeltakerAntallForHendelser(hendelsesIder(hendelser));
-        return hendelser.stream()
-                .map(hendelse -> new HendelseMedDeltakerinfo()
-                        .withHendelseInfo(hendelse)
-                        .withAntallPaameldteDeltakere(antallMap.getOrDefault(hendelse.getId(), 0)))
-                .collect(Collectors.toList());
+        return mapTilHendelseMedDeltakerInfo(hendelser);
     }
 
-    private List<Integer> hendelsesIder(List<Hendelse> hendelser) {
-        return hendelser.stream()
-        .map(Hendelse::getId)
-        .collect(Collectors.toList());
+    public List<HendelseMedDeltakerinfo> finnHistoriskeHendelser(List<Hendelsestype> hendelsestyper) {
+        List<Hendelse> hendelser = hendelseDAO.finnHendelserFoer(hendelsestyper, LocalDateTime.now());
+        return mapTilHendelseMedDeltakerInfo(hendelser);
     }
-
 
     public Optional<HendelseMedDeltakerinfo> finnHendelseMedDeltakerInfo(int id) {
         Optional<Hendelse> optHendelse = hendelseDAO.finnHendelse(id);
@@ -56,7 +49,7 @@ public class HendelseService {
         return hendelseDAO.finnHendelse(id);
     }
 
-    public HendelseMedDeltakerinfo opprettHendelse(Hendelse hendelse) {
+    public HendelseMedDeltakerinfo opprettHendelse(HendelseRequest hendelse) {
         int id = hendelseDAO.leggTilHendelse(
                 hendelse.getSted(),
                 hendelse.getHendelsestype(),
@@ -71,4 +64,21 @@ public class HendelseService {
         return finnHendelseMedDeltakerInfo(id)
                 .orElseThrow(() -> new RuntimeException("Noe galt skjedde med opprettelse av ny hendelse"));
     }
+
+    private List<HendelseMedDeltakerinfo> mapTilHendelseMedDeltakerInfo(List<Hendelse> hendelser) {
+        Map<Integer, Integer> antallPaameldtPerHendelse = hendelser.isEmpty() ? new HashMap<>() :
+                deltakerDAO.finnDeltakerAntallForHendelser(hendelsesIder(hendelser));
+        return hendelser.stream()
+                .map(hendelse -> new HendelseMedDeltakerinfo()
+                        .withHendelseInfo(hendelse)
+                        .withAntallPaameldteDeltakere(antallPaameldtPerHendelse.getOrDefault(hendelse.getId(), 0)))
+                .collect(Collectors.toList());
+    }
+
+    private static List<Integer> hendelsesIder(List<Hendelse> hendelser) {
+        return hendelser.stream()
+                .map(Hendelse::getId)
+                .collect(Collectors.toList());
+    }
+
 }

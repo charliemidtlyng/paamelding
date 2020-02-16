@@ -38,6 +38,10 @@ public interface HendelseDAO {
     @RegisterRowMapper(HendelseMapper.class)
     List<Hendelse> finnHendelserEtter(@BindList("hendelsestyper") List<Hendelsestype> hendelsestyper, @Bind("dato") LocalDateTime dato);
 
+    @SqlQuery("select id, sted, hendelsestype, starttidspunkt, paameldingstidspunkt, varighet_minutter, lenke, info, siste_slack_oppdatering, maks_antall from hendelse where hendelsestype in( <hendelsestyper> ) and starttidspunkt <= :dato")
+    @RegisterRowMapper(HendelseMapper.class)
+    List<Hendelse> finnHendelserFoer(@BindList("hendelsestyper") List<Hendelsestype> hendelsestyper, @Bind("dato") LocalDateTime dato);
+
     @SqlQuery("select id, sted, hendelsestype, starttidspunkt, paameldingstidspunkt, varighet_minutter, lenke, info, siste_slack_oppdatering, maks_antall from hendelse where hendelsestype = :hendelsestype and starttidspunkt >= :iDag order by starttidspunkt asc limit 1")
     @RegisterRowMapper(HendelseMapper.class)
     List<Hendelse> finnNesteHendelse(@Bind("hendelsestype") Hendelsestype hendelsestype, @Bind("iDag") LocalDateTime iDag);

@@ -3,6 +3,7 @@ package no.charlie.api;
 import no.charlie.client.SlackService;
 import no.charlie.db.DeltakerDAO;
 import no.charlie.domain.Deltaker;
+import no.charlie.domain.DeltakerRequest;
 import no.charlie.domain.HendelseMedDeltakerinfo;
 
 import java.time.LocalDateTime;
@@ -23,9 +24,9 @@ public class DeltakerService {
     }
 
 
-    public int meldPaaHendelse(int hendelseId, Deltaker deltaker) {
-        deltakerDAO.meldPaa(deltaker.getNavn(),
-                deltaker.getSlacknavn(),
+    public int meldPaaHendelse(int hendelseId, DeltakerRequest deltakerRequest) {
+        deltakerDAO.meldPaa(deltakerRequest.getNavn(),
+                deltakerRequest.getSlacknavn(),
                 LocalDateTime.now(),
                 null,
                 hendelseId

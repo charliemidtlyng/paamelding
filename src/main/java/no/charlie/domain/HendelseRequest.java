@@ -1,37 +1,23 @@
 package no.charlie.domain;
 
-import io.swagger.annotations.ApiModelProperty;
-
-import java.time.Duration;
 import java.time.LocalDateTime;
 
-public class Hendelse {
+public class HendelseRequest {
 
-    private int id;
     private Hendelsestype hendelsestype;
     private String sted;
     private LocalDateTime starttid;
     private LocalDateTime paameldingstid;
-    private LocalDateTime sisteSlackOppdatering;
     private String info;
     private String lenke;
     private int varighet;
     private int maksAntallDeltakere;
 
-    public int getId() {
-        return id;
-    }
-
-    public Hendelse withId(int id) {
-        this.id = id;
-        return this;
-    }
-
     public Hendelsestype getHendelsestype() {
         return hendelsestype;
     }
 
-    public Hendelse withHendelsestype(Hendelsestype hendelsestype) {
+    public HendelseRequest withHendelsestype(Hendelsestype hendelsestype) {
         this.hendelsestype = hendelsestype;
         return this;
     }
@@ -40,7 +26,7 @@ public class Hendelse {
         return sted;
     }
 
-    public Hendelse withSted(String sted) {
+    public HendelseRequest withSted(String sted) {
         this.sted = sted;
         return this;
     }
@@ -49,7 +35,7 @@ public class Hendelse {
         return starttid;
     }
 
-    public Hendelse withStarttid(LocalDateTime starttid) {
+    public HendelseRequest withStarttid(LocalDateTime starttid) {
         this.starttid = starttid;
         return this;
     }
@@ -58,17 +44,8 @@ public class Hendelse {
         return paameldingstid;
     }
 
-    public Hendelse withPaameldingstid(LocalDateTime paameldingstid) {
+    public HendelseRequest withPaameldingstid(LocalDateTime paameldingstid) {
         this.paameldingstid = paameldingstid;
-        return this;
-    }
-
-    public LocalDateTime getSisteSlackOppdatering() {
-        return sisteSlackOppdatering;
-    }
-
-    public Hendelse withSisteSlackOppdatering(LocalDateTime sisteSlackOppdatering) {
-        this.sisteSlackOppdatering = sisteSlackOppdatering;
         return this;
     }
 
@@ -76,7 +53,7 @@ public class Hendelse {
         return info;
     }
 
-    public Hendelse withInfo(String info) {
+    public HendelseRequest withInfo(String info) {
         this.info = info;
         return this;
     }
@@ -85,17 +62,16 @@ public class Hendelse {
         return lenke;
     }
 
-    public Hendelse withLenke(String lenke) {
+    public HendelseRequest withLenke(String lenke) {
         this.lenke = lenke;
         return this;
     }
 
-    @ApiModelProperty("Varighet i minutter")
     public int getVarighet() {
         return varighet;
     }
 
-    public Hendelse withVarighet(int varighet) {
+    public HendelseRequest withVarighet(int varighet) {
         this.varighet = varighet;
         return this;
     }
@@ -104,16 +80,9 @@ public class Hendelse {
         return maksAntallDeltakere;
     }
 
-    public Hendelse withMaksAntallDeltakere(int maksAntallDeltakere) {
+    public HendelseRequest withMaksAntallDeltakere(int maksAntallDeltakere) {
         this.maksAntallDeltakere = maksAntallDeltakere;
         return this;
-    }
-
-    @ApiModelProperty("Kan brukes for nedtelling til påmeldingen åpner")
-    public long getSekunderTilPaameldingStarter() {
-        return paameldingstid != null && LocalDateTime.now().isBefore(paameldingstid)
-                ? Duration.between(LocalDateTime.now(), paameldingstid).getSeconds()
-                : 0;
     }
 
 }

@@ -2,6 +2,7 @@ package no.charlie.api;
 
 import no.charlie.client.CaptchaValidator;
 import no.charlie.domain.Hendelse;
+import no.charlie.domain.HendelseRequest;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,7 +28,7 @@ public class Validator {
         }
     }
 
-    public void sjekkUgyldigeVerdierForHendelse(Hendelse hendelse) {
+    public void sjekkUgyldigeVerdierForHendelse(HendelseRequest hendelse) {
         boolean manglerVerdi = Stream.of(
                 hendelse.getHendelsestype(),
                 hendelse.getSted(),
@@ -43,7 +44,7 @@ public class Validator {
 
     public void sjekkUgyldigeVerdierForPaamelding(boolean hendelseFinnes, HttpHeaders httpHeaders) {
         boolean erCaptchaGyldig = captchaValidator.erCaptchaGyldig(
-                httpHeaders.getHeaderString("captcha-request"),
+                httpHeaders.getHeaderString("X-captcha-request"),
                 finnIpFraRequestHeader(httpHeaders));
         if (!erCaptchaGyldig) {
             throw new BadRequestException("Ugyldig captcha");
