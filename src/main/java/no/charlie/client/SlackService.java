@@ -41,11 +41,25 @@ public class SlackService {
         }
     }
 
-    public void oppdaterSlackKanalMedEndringAvPaameldte(HendelseMedDeltakerinfo hendelseMedDeltakerinfo, List<Deltaker> nyeDeltakere) {
+    public void oppdaterSlackKanalMedEndringAvPaameldte(Hendelse hendelse, List<Deltaker> deltakere) {
         try {
-            Hendelse hendelse = hendelseMedDeltakerinfo.getHendelseInfo();
-            String overskrift = String.format("Påmeldt til %s på %s:", hendelse.getHendelsestype(), dagNavn(hendelse.getStarttid()));
-            List<String> slackLinjer = nyeDeltakere.stream()
+            String overskrift = String.format("Påmeldt ✅ %s på %s:", hendelse.getHendelsestype().toString().toLowerCase(), dagNavn(hendelse.getStarttid()));
+            List<String> slackLinjer = deltakere.stream()
+                    .map(deltaker -> String.format("<%s|%s>", deltaker.getSlacknavn(), deltaker.getSlacknavn()))
+                    .collect(Collectors.toList());
+            slackLinjer.add(0, overskrift);
+
+            sendMelding(new SlackMelding(slackLinjer), hendelse.getHendelsestype());
+        } catch (Exception e) {
+            LOGGER.error("Kunne ikke oppdatere slack med hendelse", e);
+        }
+    }
+
+
+    public void oppdaterSlackKanalMedEndringAvAvmeldte(Hendelse hendelse, List<Deltaker> deltakere) {
+        try {
+            String overskrift = String.format("Avmeldt 🤕 %s på %s:", hendelse.getHendelsestype().toString().toLowerCase(), dagNavn(hendelse.getStarttid()));
+            List<String> slackLinjer = deltakere.stream()
                     .map(deltaker -> String.format("<%s|%s>", deltaker.getSlacknavn(), deltaker.getSlacknavn()))
                     .collect(Collectors.toList());
             slackLinjer.add(0, overskrift);

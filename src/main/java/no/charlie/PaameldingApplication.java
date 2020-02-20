@@ -22,11 +22,11 @@ import no.charlie.client.SlackService;
 import no.charlie.db.DeltakerDAO;
 import no.charlie.db.HendelseDAO;
 
-import java.util.Arrays;
-
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.jdbi.v3.core.Jdbi;
+import org.knowm.dropwizard.sundial.SundialBundle;
+import org.knowm.dropwizard.sundial.SundialConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +58,12 @@ public class PaameldingApplication extends Application<PaameldingConfiguration> 
             }
         });
 
+        bootstrap.addBundle(new SundialBundle<PaameldingConfiguration>() {
+            @Override
+            public SundialConfiguration getSundialConfiguration(PaameldingConfiguration configuration) {
+                return configuration.getSundialConfiguration();
+            }
+        });
     }
 
     @Override
@@ -71,7 +77,7 @@ public class PaameldingApplication extends Application<PaameldingConfiguration> 
 
 
         LOGGER.info("Migrerer database");
-//        configuration.getFlywayFactory().build(dataSource).migrate();
+        configuration.getFlywayFactory().build(dataSource).migrate();
 
         final JdbiFactory factory = new JdbiFactory();
         final Jdbi jdbi = factory.build(environment, dataSourceFactory, "db");
@@ -82,13 +88,19 @@ public class PaameldingApplication extends Application<PaameldingConfiguration> 
                 configuration.getInnebandySlack(), configuration.getVolleyballSlack());
         final CaptchaValidator captchaValidator = new CaptchaValidator(captchaClient, configuration.getCaptchaSecret());
         final HendelseService hendelseService = new HendelseService(hendelseDao, deltakerDao);
-        final DeltakerService deltakerService = new DeltakerService(deltakerDao, hendelseService, slackService);
+        final DeltakerService deltakerService = new DeltakerService(deltakerDao, hendelseService);
         final HendelseResource hendelseResource = new HendelseResource(hendelseService, deltakerService, new Validator(captchaValidator));
         final SlackResource slackResource = new SlackResource(slackService, hendelseService, configuration.getMagicHeader());
         environment.getObjectMapper().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         environment.getObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         environment.jersey().register(hendelseResource);
         environment.jersey().register(slackResource);
-
+        setupSundial(environment, slackService, hendelseService);
     }
+
+    private void setupSundial(Environment env, SlackService slackService, HendelseService hendelseService) {
+        env.getApplicationContext().setAttribute("slackService", slackService);
+        env.getApplicationContext().setAttribute("hendelseService", hendelseService);
+    }
+
 }

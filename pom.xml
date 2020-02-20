@@ -61,16 +61,12 @@
             <artifactId>dropwizard-jdbi3</artifactId>
             <version>${dropwizard.version}</version>
         </dependency>
+        
+        <!-- http client -->
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-client</artifactId>
             <version>${dropwizard.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit-jupiter.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -99,10 +95,27 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!-- testing -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <!-- dokumentasjon -->
         <dependency>
             <groupId>com.smoketurner</groupId>
             <artifactId>dropwizard-swagger</artifactId>
             <version>${swagger.version}</version>
+        </dependency>
+
+        <!-- cronjobb -->
+        <dependency>
+            <groupId>org.knowm</groupId>
+            <artifactId>dropwizard-sundial</artifactId>
+            <version>1.3.1</version>
         </dependency>
     </dependencies>
 

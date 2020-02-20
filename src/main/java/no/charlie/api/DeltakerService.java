@@ -1,13 +1,11 @@
 package no.charlie.api;
 
-import no.charlie.client.SlackService;
 import no.charlie.db.DeltakerDAO;
 import no.charlie.domain.Deltaker;
 import no.charlie.domain.DeltakerRequest;
 import no.charlie.domain.HendelseMedDeltakerinfo;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,16 +13,14 @@ public class DeltakerService {
 
     private final DeltakerDAO deltakerDAO;
     private final HendelseService hendelseService;
-    private final SlackService slackService;
 
-    public DeltakerService(DeltakerDAO deltakerDAO, HendelseService hendelseService, SlackService slackService) {
+    public DeltakerService(DeltakerDAO deltakerDAO, HendelseService hendelseService) {
         this.deltakerDAO = deltakerDAO;
         this.hendelseService = hendelseService;
-        this.slackService = slackService;
     }
 
 
-    public int meldPaaHendelse(int hendelseId, DeltakerRequest deltakerRequest) {
+    public void meldPaaHendelse(int hendelseId, DeltakerRequest deltakerRequest) {
         deltakerDAO.meldPaa(deltakerRequest.getNavn(),
                 deltakerRequest.getSlacknavn(),
                 LocalDateTime.now(),
@@ -33,7 +29,6 @@ public class DeltakerService {
         );
         oppdaterUttakEtterEndring(hendelseId);
 
-        return hendelseId;
     }
 
 
@@ -44,26 +39,14 @@ public class DeltakerService {
 
     private void oppdaterUttakEtterEndring(int hendelseId) {
         hendelseService.finnHendelseMedDeltakerInfo(hendelseId)
-        .ifPresent(hendelse -> {
-            List<Deltaker> nyeDeltakere = gjennomfoerUttak(hendelse);
-            oppdaterSlack(hendelse, nyeDeltakere);
-        });
+                .ifPresent(this::gjennomfoerUttak);
     }
 
-    private void oppdaterSlack(HendelseMedDeltakerinfo hendelse, List<Deltaker> nyeDeltakere) {
-        if (!nyeDeltakere.isEmpty()) {
-            slackService.oppdaterSlackKanalMedEndringAvPaameldte(hendelse, nyeDeltakere);
-        }
-
-    }
-
-    private List<Deltaker> gjennomfoerUttak(HendelseMedDeltakerinfo hendelse) {
+    private void gjennomfoerUttak(HendelseMedDeltakerinfo hendelse) {
         if (hendelse.getHendelseInfo().getHendelsestype().harAutomatiskUttak()) {
             List<Deltaker> uttatteDeltakere = nyeUttatteDeltakere(hendelse);
             oppdaterUttak(uttatteDeltakere);
-            return uttatteDeltakere;
         }
-        return Collections.emptyList();
     }
 
     private void oppdaterUttak(List<Deltaker> uttatteDeltakere) {

@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import no.charlie.domain.DeltakerRequest;
+import no.charlie.domain.HendelseMedAntallDeltakere;
 import no.charlie.domain.HendelseMedDeltakerinfo;
 import no.charlie.domain.HendelseRequest;
 import no.charlie.domain.Hendelsestype;
@@ -61,7 +62,7 @@ public class HendelseResource {
     @Timed
     @Path("/nye")
     @ApiOperation("Hent ut en liste over hendelser frem i tid")
-    @ApiResponses (@ApiResponse(code = 200, message = "Liste med hendelser", response = HendelseMedDeltakerinfo.class, responseContainer = "List"))
+    @ApiResponses (@ApiResponse(code = 200, message = "Liste med hendelser", response = HendelseMedAntallDeltakere.class, responseContainer = "List"))
     public Response finnNyeHendelser(@QueryParam("typer") List<Hendelsestype> hendelsestyper) {
         if (hendelsestyper.isEmpty()) {
             return Response.status(400).entity("Mangler hendelsestyper").build();
@@ -73,7 +74,7 @@ public class HendelseResource {
     @Timed
     @Path("/historiske")
     @ApiOperation("Hent ut en liste over historiske hendelser")
-    @ApiResponses (@ApiResponse(code = 200, message = "Liste med hendelser", response = HendelseMedDeltakerinfo.class, responseContainer = "List"))
+    @ApiResponses (@ApiResponse(code = 200, message = "Liste med hendelser", response = HendelseMedAntallDeltakere.class, responseContainer = "List"))
     public Response finnHistoriskeHendelser(@QueryParam("typer") List<Hendelsestype> hendelsestyper) {
         if (hendelsestyper.isEmpty()) {
             return Response.status(400).entity("Mangler hendelsestyper").build();

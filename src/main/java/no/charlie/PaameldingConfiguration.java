@@ -10,6 +10,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.knowm.dropwizard.sundial.SundialConfiguration;
 
 public class PaameldingConfiguration extends Configuration {
     @Valid
@@ -66,5 +67,17 @@ public class PaameldingConfiguration extends Configuration {
     public SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
         swaggerBundleConfiguration.setResourcePackage("no.charlie");
         return swaggerBundleConfiguration;
+    }
+
+    public SundialConfiguration getSundialConfiguration() {
+        SundialConfiguration config = new SundialConfiguration();
+        config.setAnnotatedJobsPackageName("no.charlie.jobs");
+        config.setThreadPoolSize("10");
+        config.setPerformShutdown("true");
+        config.setStartDelay("10");
+        config.setStartOnLoad("true");
+        config.setGlobalLockOnLoad("false");
+        return config;
+
     }
 }
