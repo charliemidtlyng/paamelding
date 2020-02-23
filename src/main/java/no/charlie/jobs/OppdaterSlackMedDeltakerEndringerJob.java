@@ -1,11 +1,10 @@
 package no.charlie.jobs;
 
-import no.charlie.PaameldingApplication;
 import no.charlie.api.HendelseService;
 import no.charlie.client.SlackService;
+import no.charlie.db.EndringDAO;
 import no.charlie.domain.Deltaker;
 import no.charlie.domain.Hendelse;
-import no.charlie.domain.HendelseMedDeltakerinfo;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,11 +24,13 @@ public class OppdaterSlackMedDeltakerEndringerJob extends Job {
     private static final Logger LOGGER = LoggerFactory.getLogger(OppdaterSlackMedDeltakerEndringerJob.class);
     private HendelseService hendelseService;
     private SlackService slackService;
+    private EndringDAO endringDAO;
 
 
     public void setup() {
         this.hendelseService = (HendelseService) SundialJobScheduler.getServletContext().getAttribute("hendelseService");
         this.slackService = (SlackService) SundialJobScheduler.getServletContext().getAttribute("slackService");
+        this.endringDAO = (EndringDAO) SundialJobScheduler.getServletContext().getAttribute("endringDAO");
     }
 
 
@@ -37,18 +38,18 @@ public class OppdaterSlackMedDeltakerEndringerJob extends Job {
     public void doRun() throws JobInterruptException {
         LOGGER.info("Starter jobb");
         setup();
-        LocalDateTime startTid = LocalDateTime.now();
-        List<HendelseMedDeltakerinfo> hendelser = hendelseService.finnHendelserMedDeltakerEndringer();
-        LOGGER.info("Oppdaterer {} hendelser til slack", hendelser.size());
 
-        hendelser.forEach(hendelse -> {
-            Hendelse hendelseInfo = hendelse.getHendelseInfo();
-            LocalDateTime sisteSlackOppdatering = hendelseInfo.getSisteSlackOppdatering();
-            List<Deltaker> deltakere = hendelse.getDeltakere();
-            oppdaterPaameldte(hendelseInfo, finnPaameldtSiden(deltakere, sisteSlackOppdatering));
-            oppdaterAvmeldte(hendelseInfo, finnAvmeldtSiden(deltakere, sisteSlackOppdatering));
-            hendelseService.settSisteSlackOppdatering(hendelseInfo.getId(), startTid);
-        });
+        endringDAO.finnNyeEndringer().forEach(endring ->
+                hendelseService.finnHendelseMedDeltakerInfo(endring.getHendelseid())
+                        .ifPresent(hendelse -> hendelse.getDeltakere()
+                                .stream()
+                                .filter(deltaker -> deltaker.getId() == endring.getDeltakerId())
+                                .forEach(deltaker -> {
+                                    slackService.oppdaterSlackKanalMedEndringAvDeltaker(endring.getEndringstekst(), hendelse.getHendelseInfo(), deltaker);
+                                    endringDAO.settOppdatert(endring.getId());
+                                })
+                        )
+        );
         LOGGER.info("Jobb ferdig");
 
     }

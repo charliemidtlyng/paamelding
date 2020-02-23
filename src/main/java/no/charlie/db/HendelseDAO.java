@@ -50,14 +50,4 @@ public interface HendelseDAO {
     void oppdaterSlackTidspunkt(@Bind("id") int id ,@Bind("dato") LocalDateTime dato);
 
 
-
-    @SqlQuery("SELECT id, sted, hendelsestype, starttidspunkt, paameldingstidspunkt, varighet_minutter, lenke, info, siste_slack_oppdatering, maks_antall " +
-            " FROM hendelse WHERE id in " +
-            " (SELECT h.id FROM  hendelse h " +
-            "    JOIN deltaker d ON d.hendelseid = h.id " +
-            "    WHERE h.siste_slack_oppdatering is null " +
-            "       OR d.registreringstidspunkt > h.siste_slack_oppdatering " +
-            "       OR d.avmeldingstidspunkt > h.siste_slack_oppdatering)")
-    @RegisterRowMapper(HendelseMapper.class)
-    List<Hendelse> finnHendelserMedDeltakerEndringer();
 }

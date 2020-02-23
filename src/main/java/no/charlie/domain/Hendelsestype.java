@@ -8,7 +8,7 @@ public enum Hendelsestype {
     Volleyballkamp,
     Volleyballtrening;
 
-    public boolean harAutomatiskUttak() {
+    public boolean erTrening() {
         return this == Fotballtrening || this == Innebandytrening || this == Volleyballtrening;
     }
 }

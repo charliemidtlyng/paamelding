@@ -8,13 +8,19 @@ import no.charlie.domain.HendelseMedAntallDeltakere;
 import no.charlie.domain.HendelseMedDeltakerinfo;
 import no.charlie.domain.HendelseRequest;
 import no.charlie.domain.Hendelsestype;
+import no.charlie.util.HendelseUtil;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import com.codahale.metrics.annotation.Timed;
+
+import static no.charlie.util.HendelseUtil.hendelsesIder;
 
 public class HendelseService {
 
@@ -36,6 +42,7 @@ public class HendelseService {
         return mapTilHendelseMedAntallDeltakere(hendelser);
     }
 
+    @Timed
     public Optional<HendelseMedDeltakerinfo> finnHendelseMedDeltakerInfo(int id) {
         Optional<Hendelse> optHendelse = hendelseDAO.finnHendelse(id);
         return optHendelse.map(this::mapTilHendelseMedDeltakerinfo);
@@ -61,14 +68,17 @@ public class HendelseService {
                 .orElseThrow(() -> new RuntimeException("Noe galt skjedde med opprettelse av ny hendelse"));
     }
 
-    public List<HendelseMedDeltakerinfo> finnHendelserMedDeltakerEndringer() {
-        return hendelseDAO.finnHendelserMedDeltakerEndringer().stream()
-        .map(this::mapTilHendelseMedDeltakerinfo)
-        .collect(Collectors.toList());
-    }
-
     public void settSisteSlackOppdatering(int hendelsesId, LocalDateTime tid) {
         hendelseDAO.oppdaterSlackTidspunkt(hendelsesId, tid);
+    }
+
+    public List<HendelseMedDeltakerinfo> finnHendelserForSlackOppdatering() {
+        return hendelseDAO.finnHendelserEtter(Arrays.asList(Hendelsestype.values()), LocalDateTime.now()).stream()
+        .filter(hendelse -> hendelse.getSisteSlackOppdatering() == null)
+        .filter(HendelseUtil::erHendelsestidspunktKlarTilSlackmelding)
+        .map(this::mapTilHendelseMedDeltakerinfo)
+        .collect(Collectors.toList());
+
     }
 
     private List<HendelseMedAntallDeltakere> mapTilHendelseMedAntallDeltakere(List<Hendelse> hendelser) {
@@ -81,11 +91,6 @@ public class HendelseService {
                 .collect(Collectors.toList());
     }
 
-    private static List<Integer> hendelsesIder(List<Hendelse> hendelser) {
-        return hendelser.stream()
-                .map(Hendelse::getId)
-                .collect(Collectors.toList());
-    }
 
     private HendelseMedDeltakerinfo mapTilHendelseMedDeltakerinfo(Hendelse hendelse) {
         List<Deltaker> deltakere = deltakerDAO.finnDeltakereForHendelse(hendelse.getId());
