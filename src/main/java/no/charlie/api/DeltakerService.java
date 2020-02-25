@@ -11,8 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.codahale.metrics.annotation.Timed;
-
 public class DeltakerService {
 
     private final DeltakerDAO deltakerDAO;
@@ -25,7 +23,6 @@ public class DeltakerService {
         this.hendelseService = hendelseService;
     }
 
-    @Timed
     public void meldPaaHendelse(int hendelseId, DeltakerRequest deltakerRequest) {
         int deltakerId = deltakerDAO.meldPaa(deltakerRequest.getNavn(),
                 deltakerRequest.getSlacknavn(),
@@ -35,7 +32,7 @@ public class DeltakerService {
         );
         List<Integer> nyeDeltakere = oppdaterUttakEtterEndring(hendelseId);
         if (nyeDeltakere.isEmpty()) {
-            endringDAO.opprettEndring(hendelseId, deltakerId, "er på reservelisten til", LocalDateTime.now());
+            endringDAO.opprettEndring(hendelseId, deltakerId, "er på reservelisten 🙏 til", LocalDateTime.now());
         }
     }
 
@@ -44,7 +41,7 @@ public class DeltakerService {
         deltakerDAO.meldAv(deltakerId, LocalDateTime.now());
         List<Integer> nyeDeltakere = oppdaterUttakEtterEndring(hendelseId);
         if (!nyeDeltakere.isEmpty()) {
-            endringDAO.opprettEndring(hendelseId, deltakerId, "er avmeldt", LocalDateTime.now());
+            endringDAO.opprettEndring(hendelseId, deltakerId, "har meldt seg av 🤕", LocalDateTime.now());
         }
     }
 
@@ -55,17 +52,14 @@ public class DeltakerService {
     }
 
     private List<Integer> gjennomfoerUttak(HendelseMedDeltakerinfo hendelse) {
-        if (hendelse.getHendelseInfo().getHendelsestype().erTrening()) {
-            List<Deltaker> uttatteDeltakere = nyeUttatteDeltakere(hendelse);
-            return oppdaterUttak(uttatteDeltakere, hendelse.getHendelseInfo().getId());
-        }
-        return Collections.emptyList();
+        List<Deltaker> uttatteDeltakere = nyeUttatteDeltakere(hendelse);
+        return oppdaterUttak(uttatteDeltakere, hendelse.getHendelseInfo().getId());
     }
 
     private List<Integer> oppdaterUttak(List<Deltaker> uttatteDeltakere, int hendelseId) {
         List<Integer> deltakerIder = uttatteDeltakere.stream()
                 .map(deltaker -> {
-                    endringDAO.opprettEndring(hendelseId, deltaker.getId(), "er påmeldt til", LocalDateTime.now());
+                    endringDAO.opprettEndring(hendelseId, deltaker.getId(), "er påmeldt til ✅", LocalDateTime.now());
                     return deltaker.getId();
                 })
                 .collect(Collectors.toList());

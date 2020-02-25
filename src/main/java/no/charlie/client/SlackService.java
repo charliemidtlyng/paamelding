@@ -71,16 +71,14 @@ public class SlackService {
         Hendelse hendelse = hendelseMedDeltakerinfo.getHendelseInfo();
         String overskrift = String.format("%s i %s", hendelse.getHendelsestype(), hendelse.getSted());
         String lenkeTekst = String.format("<"+slackPaths.finnRiktigLenke(hendelse.getHendelsestype())+"%s|Meld deg på her>", hendelse.getId());
-        String tekst = String.format("%s i %s - %s. \n Påmelding åpner %s",
-                hendelse.getHendelsestype(),
-                hendelse.getSted(),
+        String tekst = String.format("Tid: %s. \n Påmelding åpner %s",
                 tilLesbartTidspunkt(hendelse.getStarttid()),
                 tilLesbartTidspunkt(hendelse.getPaameldingstid())
         );
 
         int ledigePlasser = hendelse.getMaksAntallDeltakere() - hendelseMedDeltakerinfo.getAntallPaameldteDeltakere();
         String antallPaameldtTekst = hendelseMedDeltakerinfo.getAntallPaameldteDeltakere() > 0
-                ? String.format("Så langt har %s meldt seg på. Det er %s ledige plasser",
+                ? String.format("Foreløpig %s påmeldt og %s ledige plasser",
                 hendelseMedDeltakerinfo.getAntallPaameldteDeltakere(),
                 ledigePlasser > 0 ? ledigePlasser : "ingen")
                 : null;
@@ -93,7 +91,7 @@ public class SlackService {
     }
 
     public static String tilLesbartTidspunkt(LocalDateTime starttid) {
-        return starttid.format(DateTimeFormatter.ofPattern("EEEE, dd. MMM - HH:MM", locale));
+        return starttid.format(DateTimeFormatter.ofPattern("EEEE, dd. MMMM kl.HH:MM", locale));
 
     }
 
@@ -104,7 +102,7 @@ public class SlackService {
 
     public void oppdaterSlackKanalMedEndringAvDeltaker(String endringstekst, Hendelse hendelse, Deltaker deltaker) {
         try {
-            String overskrift = String.format("%s %s %s på %s", deltaker.getSlacknavn(), endringstekst, hendelse.getHendelsestype().toString().toLowerCase(), dagNavn(hendelse.getStarttid()));
+            String overskrift = String.format("%s %s %s på %s.", deltaker.getSlacknavn(), endringstekst, hendelse.getHendelsestype().toString().toLowerCase(), dagNavn(hendelse.getStarttid()));
             sendMelding(new SlackMelding(overskrift), hendelse.getHendelsestype());
         } catch (Exception e) {
             LOGGER.error("Kunne ikke oppdatere slack med hendelse", e);

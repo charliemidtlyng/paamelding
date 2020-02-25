@@ -42,7 +42,6 @@ public class HendelseService {
         return mapTilHendelseMedAntallDeltakere(hendelser);
     }
 
-    @Timed
     public Optional<HendelseMedDeltakerinfo> finnHendelseMedDeltakerInfo(int id) {
         Optional<Hendelse> optHendelse = hendelseDAO.finnHendelse(id);
         return optHendelse.map(this::mapTilHendelseMedDeltakerinfo);
