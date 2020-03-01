@@ -13,6 +13,7 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import no.charlie.api.DeltakerService;
 import no.charlie.api.HendelseResource;
 import no.charlie.api.HendelseService;
+import no.charlie.api.KalenderFeedResource;
 import no.charlie.api.SlackResource;
 import no.charlie.api.Validator;
 import no.charlie.client.CaptchaClient;
@@ -94,10 +95,12 @@ public class PaameldingApplication extends Application<PaameldingConfiguration> 
         final DeltakerService deltakerService = new DeltakerService(deltakerDao, endringDAO, hendelseService);
         final HendelseResource hendelseResource = new HendelseResource(hendelseService, deltakerService, new Validator(captchaValidator));
         final SlackResource slackResource = new SlackResource(slackService, hendelseService, configuration.getMagicHeader());
+        final KalenderFeedResource kalenderFeedResource = new KalenderFeedResource(hendelseService);
         environment.getObjectMapper().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         environment.getObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         environment.jersey().register(hendelseResource);
         environment.jersey().register(slackResource);
+        environment.jersey().register(kalenderFeedResource);
         setupSundial(environment, slackService, hendelseService, endringDAO);
     }
 
