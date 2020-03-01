@@ -14,10 +14,12 @@ import no.charlie.api.DeltakerService;
 import no.charlie.api.HendelseResource;
 import no.charlie.api.HendelseService;
 import no.charlie.api.KalenderFeedResource;
+import no.charlie.api.NifKampResource;
 import no.charlie.api.SlackResource;
 import no.charlie.api.Validator;
 import no.charlie.client.CaptchaClient;
 import no.charlie.client.CaptchaValidator;
+import no.charlie.client.NifClient;
 import no.charlie.client.SlackClient;
 import no.charlie.client.SlackService;
 import no.charlie.db.DeltakerDAO;
@@ -75,6 +77,7 @@ public class PaameldingApplication extends Application<PaameldingConfiguration> 
         DataSourceFactory dataSourceFactory = configuration.getDataSourceFactory();
         ManagedDataSource dataSource = dataSourceFactory.build(environment.metrics(), "db");
 
+        NifClient nifClient = NifClient.build(environment.getObjectMapper());
         SlackClient slackClient = SlackClient.build("https://hooks.slack.com", environment.getObjectMapper());
         CaptchaClient captchaClient = CaptchaClient.build("https://www.google.com/recaptcha/api/siteverify", environment.getObjectMapper());
 
@@ -96,11 +99,13 @@ public class PaameldingApplication extends Application<PaameldingConfiguration> 
         final HendelseResource hendelseResource = new HendelseResource(hendelseService, deltakerService, new Validator(captchaValidator));
         final SlackResource slackResource = new SlackResource(slackService, hendelseService, configuration.getMagicHeader());
         final KalenderFeedResource kalenderFeedResource = new KalenderFeedResource(hendelseService);
+        final NifKampResource nifKampFeedResource = new NifKampResource(nifClient);
         environment.getObjectMapper().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         environment.getObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         environment.jersey().register(hendelseResource);
         environment.jersey().register(slackResource);
         environment.jersey().register(kalenderFeedResource);
+        environment.jersey().register(nifKampFeedResource);
         setupSundial(environment, slackService, hendelseService, endringDAO);
     }
 
