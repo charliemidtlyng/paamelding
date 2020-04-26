@@ -18,7 +18,7 @@ TODO
 - Riktig logikk for slack-oppdatering
 - Hente inn kamper fra nif?
 - Historiske hendelser (paginering?)
-- Frontend :D :D 
+- Frontend :D :D (utsatt :())
 - Https?
 
 
