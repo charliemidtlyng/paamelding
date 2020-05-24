@@ -1,5 +1,7 @@
 package no.charlie;
 
+import ca.grimoire.dropwizard.cors.config.CrossOriginFilterFactory;
+import ca.grimoire.dropwizard.cors.config.CrossOriginFilterFactoryHolder;
 import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.db.DataSourceFactory;
@@ -12,10 +14,12 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.knowm.dropwizard.sundial.SundialConfiguration;
 
-public class PaameldingConfiguration extends Configuration {
+public class PaameldingConfiguration extends Configuration implements CrossOriginFilterFactoryHolder {
     @Valid
     @NotNull
     private DataSourceFactory database = new DataSourceFactory();
+
+    private CrossOriginFilterFactory crossOriginFilterFactory = new CrossOriginFilterFactory();
 
     private String fotballSlack;
     private String innebandySlack;
@@ -79,5 +83,11 @@ public class PaameldingConfiguration extends Configuration {
         config.setGlobalLockOnLoad("false");
         return config;
 
+    }
+
+    @Override
+    public CrossOriginFilterFactory getCors() {
+        crossOriginFilterFactory.setOrigins("*");
+        return crossOriginFilterFactory;
     }
 }

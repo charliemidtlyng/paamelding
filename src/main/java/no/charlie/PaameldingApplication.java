@@ -1,5 +1,6 @@
 package no.charlie;
 
+import ca.grimoire.dropwizard.cors.CorsBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -69,6 +70,7 @@ public class PaameldingApplication extends Application<PaameldingConfiguration> 
                 return configuration.getSundialConfiguration();
             }
         });
+        bootstrap.addBundle(new CorsBundle<PaameldingConfiguration>());
     }
 
     @Override

@@ -92,6 +92,16 @@
       </properties>
     </profile>
   </profiles>
+  <repositories>
+    <repository>
+      <id>jcenter</id>
+      <url>https://jcenter.bintray.com/</url>
+    </repository>
+    <repository>
+      <id>maven2</id>
+      <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+  </repositories>
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -142,15 +152,15 @@
     </dependencies>
   </dependencyManagement>
   <properties>
-    <swagger.version>2.0.0-1</swagger.version>
-    <postgresql.version>42.2.9</postgresql.version>
-    <feign.version>10.7.0</feign.version>
-    <mainClass>no.charlie.PaameldingApplication</mainClass>
-    <dropwizard.version>2.0.0</dropwizard.version>
     <dropwizard-flyway.version>1.3.0-4</dropwizard-flyway.version>
-    <okhttp.version>4.2.2</okhttp.version>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit-jupiter.version>5.5.2</junit-jupiter.version>
+    <okhttp.version>4.2.2</okhttp.version>
+    <dropwizard.version>2.0.0</dropwizard.version>
+    <mainClass>no.charlie.PaameldingApplication</mainClass>
+    <postgresql.version>42.2.9</postgresql.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <feign.version>10.7.0</feign.version>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <swagger.version>2.0.0-1</swagger.version>
   </properties>
 </project>
